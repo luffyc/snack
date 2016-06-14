@@ -1,0 +1,393 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>贪吃蛇</title>
+</head>
+<style>
+    body,ul,li{
+        padding:0;
+        margin:0;
+        list-style: none;
+        font-family: "微软雅黑";
+    }
+    #start{
+        width:100%;
+        height:650px;
+        position: absolute;
+        left:0;
+        top:0;
+        z-index: 99;
+        min-width: 960px;
+        text-align: center;
+        background: #fff;
+    }
+    #start img{
+        opacity: 0;
+    }
+    #play{
+        font-size: 12px;
+        font-family: 'Arial';
+        cursor: pointer;
+        position: absolute;
+        right:0;
+        bottom:0;
+        opacity: 0;
+    }
+    #floor{
+        width:600px;
+        height:600px;
+        position: absolute;
+        top:30px;
+        right:150px;
+        z-index: 89;
+        background-image:url(floor.jpg);
+    }
+	#sence{
+		width:600px;
+		height:600px;
+	}
+	.block{
+		width:29px;
+		height:29px;
+        margin:0 1px 1px 0;
+		float:left;
+	}
+	.she{
+		width:30px;
+		height:30px;
+        border-radius: 50%;
+		background: #43D10F;
+	}
+	.shiwu{
+		width:30px;
+		height:30px;
+        border-radius: 50%;
+		background: #F69717;
+	}
+    .box{
+        width:95%;
+        height:630px;
+        position: absolute;
+        left:10px;
+        top:10px;
+        z-index: 88;
+        min-width: 960px;
+        background: #fff;
+        border:5px solid green;
+    }
+    .box .ul{
+        margin-top: 20px;
+        margin-left: 10px;
+    }
+    .ul li{
+        width:80px;
+        height:25px;
+        font-size:16px;
+        color:#333;
+        line-height: 25px;
+        text-align: center;
+        margin:10px;
+        cursor: pointer;
+    }
+    .ul .kuang{
+        width:400px;
+        height:280px;
+        background: url(2.jpg) no-repeat -260px 0;
+    }
+    .ul .kuang #first{
+        position: absolute;
+        left:125px;
+        top:80px;
+    }
+    .ul .kuang #middle{
+        position: absolute;
+        left:225px;
+        top:80px;
+    }
+    .ul .sudu{
+        width:400px;
+        height:240px;
+        background: url(3.jpg) no-repeat -260px -230px;
+    }
+    .ul #last{
+        position: relative;
+        left:185px;
+        top:95px;
+    }
+    #last li{
+        background: #C3D21F;
+        margin:5px;
+        width:100px;
+        color: #333;
+    }
+    .ul .active{
+        background: #59B539;
+        color:#fff;
+    }
+    .ul .speed{
+        background: #F69717;
+        color:#fff;
+    }
+    .box input{
+        position: absolute;
+        left:150px;
+        top:230px;
+        border:none;
+        outline: none;
+        width:140px;
+        margin:20px;
+        border-bottom:1px solid #333;
+        font-size: 14px;
+        color:#333;
+    }
+    #success{
+        width:658px;
+        height:415px;
+        background-image:url(bg3.jpg);
+        position: absolute;
+        top:-420px;
+        right:120px;
+        z-index: 99;
+        opacity: 0;
+    }
+    #fail{
+        width:658px;
+        height:415px;
+        background-image:url(bg3.jpg);
+        position: absolute;
+        top:-420px;
+        right:120px;
+        z-index: 99;
+        opacity: 0;
+    }
+    .tishi{
+        position: relative;
+        top:190px;
+        left:180px;
+        font-size: 24px;
+        color:#333;
+        font-family: "汉仪娃娃篆简";
+    }
+    .tishi strong{
+        font-size: 30px;
+        color:#F64B0E;
+    }
+</style>
+<body> 
+    <div id="start">
+        <img src="logo.jpg" alt="">
+        <div id="play">play</div>
+    </div>
+    <div class="box">
+        <ul class="ul">
+            <div class="kuang">
+                <div id="first">
+                    <li data-row="20" class="active">20 x 20</li>
+                    <li data-row="30">30 x 30</li>
+                    <li data-row="40">40 x 40</li>
+                </div>
+                <div id="middle">
+                    <li speed="one" class="speed">easy</li>
+                    <li speed="two">middle</li>
+                    <li speed="three">difficulty</li>
+                </div>
+            </div>
+            <div class="sudu">
+                <div id="last">
+                    <li data-cotroll="kaishi">start</li>
+                    <li data-cotroll="zanting">stop</li>
+                    <li data-cotroll="restart">restart</li>
+                </div>
+            </div>
+        </ul>
+        <input type="text" id="type" placeholder="请输入5-40间的数字">
+    </div>
+	<div id="floor"><div id="sence"></div></div>
+    <div id="success">
+        <div class="tishi"><strong>恭喜</strong> 您已经成功的吃饱了</div>
+    </div>
+    <div id="fail">
+        <div class="tishi"><strong>抱歉</strong> 您被无情的撞死了</div>
+    </div>
+	<script src="./jquery-1.12.0.js"></script>
+	<script>
+    $(function(){
+
+        $('#start img').animate({opacity:1},3000);
+        $('#start #play').animate({opacity:1},3000);
+        $('#start #play').animate({right:600,bottom:200,fontSize:32},300);
+
+        $('#play').on('click',function(){
+            $('#start').slideUp(1000);
+            $('#start img').slideUp(1000);
+        })
+
+
+        //全局变量
+        var hang;
+        var she = [{x:0,y:0},{x:0,y:1},{x:0,y:2}];
+        var food;
+        var timerId;
+        var fangxiang = 39;
+        var a = 200;
+
+        //公用函数
+        var zb = function(x,y){
+            return x + '-' + y;
+        }
+        var ffood = function(){
+            var _x = Math.floor( Math.random()*hang );
+            var _y = Math.floor( Math.random()*hang );
+            $('#' + _x + '-' + _y).addClass('shiwu');
+            return { x:_x, y:_y };
+        }
+        
+        var render = function(){
+            hang = hang || 20;
+            var i = 0, j = 0,sence = $('#sence'),
+            wh = Math.floor(600/hang);
+            sence.empty();
+            for( ;i<hang;i++){
+                for( j=0;j<hang;j++){
+                    $('<div>')
+                    .addClass('block')
+                    .attr('id',zb(i,j))
+                    .width(wh-1)
+                    .height(wh-1)
+                    .appendTo( sence );
+                }
+            }
+            sence.width(wh*hang).height(wh*hang);
+        }
+        var shu = 0;
+        var move = function(){
+            var jiutou = she[she.length-1];
+             if(fangxiang === 39){
+                 var xintou = {x:jiutou.x, y:jiutou.y+1};
+             }else if(fangxiang === 40){
+                 var xintou = {x:jiutou.x+1, y:jiutou.y};
+             }else if(fangxiang === 37){
+                 var xintou = {x:jiutou.x, y:jiutou.y-1};
+             }else if(fangxiang === 38){
+                 var xintou = {x:jiutou.x-1, y:jiutou.y};
+             }
+             
+             if( xintou.x < 0 || xintou.x > hang-1 || xintou.y < 0 || xintou.y > hang-1 ){
+                $('#floor').animate({opacity:0},500);
+                $('#fail').animate({opacity:1,top:80},1000);
+                clearInterval(timerId)
+                return;
+            }
+             
+             if( xintou.x === food.x && xintou.y === food.y){
+                shu++;
+                she.push(xintou);
+                $('#'+xintou.x+'-'+xintou.y).addClass('she')
+                .removeClass('shiwu');
+                food=ffood();
+                if( shu === 10){
+                    $('#floor').animate({opacity:0},500);
+                    $('#success').animate({opacity:1,top:80},1000);
+                    clearInterval(timerId)
+                    return;
+                }
+            }else{
+                she.push(xintou)
+                $('#'+xintou.x+'-'+xintou.y).addClass('she')
+
+                var weiba=she.shift();
+                $('#'+weiba.x+'-'+weiba.y).removeClass('she') 
+            }
+        }
+        
+
+        //主体逻辑
+        render();
+        food = ffood();
+        she.forEach(function(v){
+            $('#' + zb(v.x,v.y)).addClass('she');
+        })
+
+        //操作事件
+        //处理键盘
+        $(document).bind('keydown',function(e){
+         if( Math.abs(e.keyCode - fangxiang) === 2){
+             return;
+         }
+         if( e.keyCode < 37 || e.keyCode > 40 ){
+             return;
+         }
+         fangxiang = e.keyCode;
+        })
+
+        //处理开始和暂停
+        $('.ul li[data-cotroll]').bind('click',function(){
+            var str = $(this).attr('data-cotroll');
+            if( str === 'kaishi'){
+                timerId = setInterval(move,a);
+            }else if( str === 'zanting' ){
+                clearInterval(timerId);
+            }else if( str === 'restart' ){
+                clearInterval(timerId);
+                $('.she').removeClass('she');
+                $('.shiwu').removeClass('shiwu');
+                she = [{x:0,y:0},{x:0,y:1},{x:0,y:2}];
+                she.forEach(function(v){
+                    $('#' + zb());
+                })
+                food = ffood();
+                $('#floor').animate({opacity:1},1000);
+                $('#success').animate({opacity:0,top:-420},500);
+                $('#fail').animate({opacity:0,top:-420},500);
+                timerId = setInterval(move,a);
+            }
+        })
+        
+
+        //处理速度
+        $('.ul li[speed]').bind('click',function(){
+            var str = $(this).attr('speed');
+            $('li.speed').removeClass('speed');
+            if( str === 'one'){
+                a = 200;
+                $(this).addClass('speed');
+            }else if( str === 'two' ){
+                a = 150;
+                $(this).addClass('speed');
+            }else if( str === 'three' ){
+                a = 100;
+                $(this).addClass('speed');
+            }
+        })
+
+        //点击选择行列
+        $('.ul li[data-row]').bind('click',function(){
+            hang = Number( $(this).attr('data-row') );
+            render(hang);
+            food = ffood();
+            $('li.active').removeClass('active');
+            $(this).addClass('active');
+        })
+        
+        //自定义行列
+         $('#type').bind('keydown',function(e){
+            if( e.keyCode === 13){
+                hang = $(this).val()
+                if( isNaN( Number( hang ) )){
+                    alert('不是一个数字')
+                }else if( hang < 5 || hang > 40 ){
+                    alert('正常点')
+                }else{
+                    $('li.active').removeClass('active');
+                    render();
+                    $('li[data-row='+hang+']').addClass('active');
+                }
+            }
+        })
+    })
+
+    
+	</script>
+</body>
+</html>
